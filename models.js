@@ -1,9 +1,14 @@
-const {Model, DataTypes, Sequelize} = require('sequelize')
-const sequelize = new Sequelize("sqlite:./db.sql", {logging:false})
+const {Sequelize, Model, DataTypes} = require('sequelize')
+const path = require('path')
+const sequelize = process.env.NODE_ENV === 'test'
+    ? new Sequelize('sqlite::memory:', null, null, {dilect: 'sqlite'})
+    : new Sequelize({dialect: 'sqlite', storage: path.join(__dirname, 'data.db')})
+
 
 class User extends Model {}
 User.init ({
-    user_id: DataTypes.STRING,
+    name: DataTypes.STRING,
+    email: DataTypes.STRING
 }, {sequelize:  sequelize})
 
 module.exports = {
