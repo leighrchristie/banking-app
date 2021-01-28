@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
         })
     }
     console.log(user)
-    res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out')
+    res.send(req.oidc.isAuthenticated() ? 'You are logged in' : 'Logged out')
 })
 
 

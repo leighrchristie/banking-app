@@ -8,7 +8,8 @@ const sequelize = process.env.NODE_ENV === 'test'
 class User extends Model {}
 User.init ({
     name: DataTypes.STRING,
-    email: DataTypes.STRING
+    email: DataTypes.STRING,
+    friends: []
 }, {sequelize:  sequelize})
 
 module.exports = {
