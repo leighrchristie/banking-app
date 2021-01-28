@@ -1,0 +1,12 @@
+const {Model, DataTypes, Sequelize} = require('sequelize')
+const sequelize = new Sequelize("sqlite:./db.sql", {logging:false})
+
+class User extends Model {}
+User.init ({
+    user_id: DataTypes.STRING,
+}, {sequelize:  sequelize})
+
+module.exports = {
+    User,
+    sequelize
+}
