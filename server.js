@@ -19,44 +19,30 @@ app.use(auth(config))
 
 // req.isAuthenticated is provided from the auth router
 app.get('/', (req, res) => {
-    console.log(req.oidc.user)
-    const user = User.findAll({
-        where: {
-            email: req.oidc.user.email
-        }
-    })
-    if (!user) {
-        User.create({
-            name: req.oidc.user.name,
-            email: req.oidc.user.email
-        })
+    if (req.oidc.isAuthenticated()) {
         const user = User.findAll({
             where: {
                 email: req.oidc.user.email
             }
         })
+        if (!user) {
+            User.create({
+                name: req.oidc.user.name,
+                email: req.oidc.user.email
+            })
+            const user = User.findAll({
+                where: {
+                    email: req.oidc.user.email
+                }
+            })
+        }
+        console.log(req.oidc.user)
+        console.log(user)
+        res.send('You are logged in')
+    } else {
+        res.send('You are not signed up!')
     }
-    console.log(user)
-    res.send(req.oidc.isAuthenticated() ? 'You are logged in' : 'Logged out')
 })
-
-
-// app.get('/', (req, res) => {
-//   console.log(req.oidc.user)
-//   const user = User.findAll({
-//       where: {
-//           email: req.oidc.user.email
-//       }
-//   })
-//   if (!user) {
-//       User.create({
-//           name:req.oidc.user.name,
-//           email:req.oidc.user.email
-//       })
-//     console.log(user)
-//   }
-//   res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out')
-// })
 
 app.listen(PORT, async () => {
     await sequelize.sync()
