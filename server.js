@@ -80,7 +80,8 @@ app.post('/user/:id/invite-friend', async (req,res) => {
 
 //Getting add friend form
 app.get('/user/:id/invite-friend', async (req,res) => {
-    res.render("invite")
+    const id = req.params.id
+    res.render("invite", {id})
 })
 
 //Creating a new friend
