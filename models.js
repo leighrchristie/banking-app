@@ -12,7 +12,17 @@ User.init ({
     friends: []
 }, {sequelize:  sequelize})
 
+class Friend extends Model {}
+Friend.init({
+    email: DataTypes.STRING,
+    bank: DataTypes.STRING
+}, {sequelize: sequelize})
+
+User.hasMany(Friend, {as: 'friends'})
+
 module.exports = {
     User,
+    Friend,
     sequelize
 }
+
