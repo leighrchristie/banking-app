@@ -24,20 +24,23 @@
     </nav>
     <h2 class="mt-4"></h2>
     <div class="container">
-      <form class="mt-4">
+      <form class="mt-4" onsubmit="addFriend(event,this)">
         <div class="mb-3">
-          <label for="exampleInputEmail1" class="form-label"
+          <label for="email" class="form-label"
             >Email address</label
           >
           <input
             type="email"
             class="form-control"
-            id="exampleInputEmail1"
+            id="email"
+            name="email"
           />
         </div>
         <div class="mb-3">
-          <label for="exampleInputPassword1" class="form-label">Bank</label>
-          <input type="text" class="form-control" />
+          <label for="bank" class="form-label">Bank</label>
+          <select name="bank" id="bank" class="form-control">
+            <option value="http://localhost:3000">Cash Flow</option>
+          </select>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
@@ -47,5 +50,26 @@
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
       crossorigin="anonymous"
-    ></script>
+    >
+    </script>
+    <script>
+      async function addFriend(event, form) {
+        event.preventDefault()
+        const data = new FormData(form)
+        const body = {
+          email: data.get("email"),
+          bank: data.get("bank")
+        }
+        
+        const request = {
+          method: 'POST',
+          headers: {
+                'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        }
+
+        await fetch("/user/{{id}}/add-friend", request)
+      }
+    </script>
   </body>
