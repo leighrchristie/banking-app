@@ -3,6 +3,12 @@ const express = require('express')
 const app = express()
 const { sequelize, User, Friend } = require('./models')
 const Email = require('./email')
+const Handlebars = require('handlebars')
+const expressHandlebars = require('express-handlebars')
+const {allowInsecurePrototypeAccess} = require('@handlebars/allow-prototype-access')
+const handlebars = expressHandlebars({
+    handlebars: allowInsecurePrototypeAccess(Handlebars)
+})
 
 var PORT = process.env.PORT || 3000
 
@@ -20,6 +26,10 @@ app.use(auth(config))
 
 //body of requests should be parsed
 app.use(express.json())
+app.use(express.static('public'))
+app.use(express.urlencoded({ extended: true }))
+app.engine('handlebars', handlebars)
+app.set('view engine', 'handlebars')
 
 // req.isAuthenticated is provided from the auth router
 app.get('/', async (req, res) => {
@@ -38,9 +48,22 @@ app.get('/', async (req, res) => {
         }
         console.log(req.oidc.user)
         console.log(user)
-        res.send('You are logged in')
+        res.redirect("user")
     } else {
-        res.send('You are not signed up!')
+        res.send('You are not logged in.')
+    }
+})
+
+app.get("/user", async (req, res) => {
+    if (!req.oidc.isAuthenticated()) {
+        res.sendStatus(404)
+    } else {
+        const user = await User.findOne({
+            where: {
+                email: req.oidc.user.email
+            }
+        })
+        res.render("user", {user})
     }
 })
 
