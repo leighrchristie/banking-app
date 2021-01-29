@@ -2,6 +2,7 @@ const { auth } = require('express-openid-connect')
 const express = require('express')
 const app = express()
 const { sequelize, User } = require('./models')
+const Email = require('./email')
 
 var PORT = process.env.PORT || 3000
 
@@ -18,23 +19,15 @@ const config = {
 app.use(auth(config))
 
 // req.isAuthenticated is provided from the auth router
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
     if (req.oidc.isAuthenticated()) {
-        const user = User.findAll({
+        var user = await User.findAll({
             where: {
                 email: req.oidc.user.email
             }
         })
-        if (!user) {
-            User.create({
-                name: req.oidc.user.name,
-                email: req.oidc.user.email
-            })
-            const user = User.findAll({
-                where: {
-                    email: req.oidc.user.email
-                }
-            })
+        if (user == []) {
+            user = await User.create({name: req.oidc.user.nickname, email: req.oidc.user.email})
         }
         console.log(req.oidc.user)
         console.log(user)
@@ -42,6 +35,15 @@ app.get('/', (req, res) => {
     } else {
         res.send('You are not signed up!')
     }
+})
+
+app.post('/users/:id/invite-friend', async (req,res) => {
+  const user = await User.findByPk(req.params.id)
+  const link = 'http://localhost:3000/' + user.id + '/add-friend'
+  const body = 'Hi! ' + user.name + ' has invited you to be their friend on Cash Flow. Follow this link to accept: ' + link
+  const subject = "Cash Flow Friend Request"
+  const email = new Email("cash.flow.glm@gmail.com", body, subject)
+  res.sendStatus(200)
 })
 
 app.listen(PORT, async () => {
