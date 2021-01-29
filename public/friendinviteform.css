@@ -1,0 +1,58 @@
+.container {
+  background-color: #0b6884ff;
+  border-radius: 10px;
+  height: 70vh;
+}
+
+form {
+  text-align: center;
+  padding: 50px;
+  padding-top:150px;
+}
+
+.form-control{
+    margin-bottom: 50px;
+    margin-top: 10px;
+    text-align: left;
+}
+.form-label{
+    text-align: left;
+    color: white;
+    height: 10px;
+    
+}
+h2:before {
+    content: 'Cash';
+    color: #f9a010ff;
+    font-size: 32px;
+}
+h2:after {
+    content: ' Flow';
+    color: #0b6884ff;
+    font-size: 32px;
+}
+
+h2 {
+  font-family: "Neucha", cursive;
+  text-align: center;
+}
+
+.navbar-brand:before {
+    content: 'Cash';
+    color: #f9a010ff;
+    font-size: 32px;
+}
+.navbar-brand:after {
+    content: ' Flow';
+    color: #0b6884ff;
+    font-size: 32px;
+}
+
+.navbar-brand {
+  font-family: "Neucha", cursive;
+  text-align: center;
+}
+
+.btn-primary {
+  background-color: #f9a010ff;
+}
