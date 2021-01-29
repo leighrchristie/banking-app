@@ -63,11 +63,6 @@ app.get("/user", async (req, res) => {
     }
 })
 
-// app.get("/user", async (req, res) => {
-//     const user = await User.findByPk(req.params.id)
-//     res.render("user", {user})
-// })
-
 //Sending invitation email to friend
 app.post('/users/:id/invite-friend', async (req,res) => {
   const user = await User.findByPk(req.params.id)
