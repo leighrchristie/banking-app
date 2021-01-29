@@ -64,7 +64,13 @@ app.get("/user", async (req, res) => {
                 email: req.oidc.user.email
             }
         })
-        res.render("user", {user})
+
+        const friends = await Friend.findAll({
+            where: {
+                UserId: user.id
+            }
+        })
+        res.render("user", {user, friends})
     }
 })
 
@@ -74,7 +80,7 @@ app.post('/user/:id/invite-friend', async (req,res) => {
   const link = 'http://localhost:3000/user/' + user.id + '/invite-friend'
   const body = 'Hi! ' + user.name + ' has invited you to be their friend on Cash Flow. Follow this link to accept: ' + link
   const subject = "Cash Flow Friend Request"
-  const email = new Email("cash.flow.glm@gmail.com", body, subject)
+  const email = new Email(req.body.email, body, subject)
   res.sendStatus(200)
 })
 
