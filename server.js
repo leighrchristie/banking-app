@@ -40,7 +40,11 @@ app.get('/', async (req, res) => {
             }
         })
         if (user == null) {
-            user = await User.create({name: req.oidc.user.nickname, email: req.oidc.user.email})
+            user = await User.create({
+                name: req.oidc.user.nickname, 
+                email: req.oidc.user.email, 
+                balance: 500
+            })
         }
         console.log(req.oidc.user)
         console.log(user)
@@ -78,6 +82,28 @@ app.post('/users/:id/add-friend', async (req,res) => {
     const friend = await Friend.create({email: req.body.email, bank: req.body.bank, UserId: req.params.id})
     res.status(200).send(friend)
 })
+
+//Paying a user
+app.post('/pay', async (req,res) => {
+    const user = await User.findOne({
+        where: {
+            email: req.body.email
+        }
+    })
+    
+    const amount = req.body.amount
+
+    if (user == []) {
+        res.sendStatus(404)
+    } else if (typeof amount != "number") {
+        res.sendStatus(400)
+    } else {
+        const balance = user.balance + amount
+        console.log(balance)
+        user.update({balance: balance })
+        res.sendStatus(200)
+    }   
+}) 
 
 app.listen(PORT, async () => {
     await sequelize.sync()
