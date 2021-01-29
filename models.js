@@ -18,9 +18,11 @@ Friend.init({
 }, {sequelize: sequelize})
 
 User.hasMany(Friend, {as: 'friends'})
+Friend.belongsTo(User)
 
 module.exports = {
     User,
     Friend,
     sequelize
 }
+

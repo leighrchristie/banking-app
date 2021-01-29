@@ -1,7 +1,14 @@
 const { auth } = require('express-openid-connect')
 const express = require('express')
 const app = express()
-const { sequelize, User } = require('./models')
+const { sequelize, User, Friend } = require('./models')
+const Email = require('./email')
+const Handlebars = require('handlebars')
+const expressHandlebars = require('express-handlebars')
+const {allowInsecurePrototypeAccess} = require('@handlebars/allow-prototype-access')
+const handlebars = expressHandlebars({
+    handlebars: allowInsecurePrototypeAccess(Handlebars)
+})
 
 var PORT = process.env.PORT || 3000
 
@@ -17,48 +24,64 @@ const config = {
 // auth router attaches /login, /logout, and /callback routes to the baseURL
 app.use(auth(config))
 
-// checks if user exists then req.isAuthenticated is provided from the auth router
-app.get('/', (req, res) => {
+//body of requests should be parsed
+app.use(express.json())
+app.use(express.static('public'))
+app.use(express.urlencoded({ extended: true }))
+app.engine('handlebars', handlebars)
+app.set('view engine', 'handlebars')
+
+// req.isAuthenticated is provided from the auth router
+app.get('/', async (req, res) => {
     if (req.oidc.isAuthenticated()) {
-        const user = User.findAll({
+        var user = await User.findOne({
             where: {
                 email: req.oidc.user.email
             }
         })
-        if (!user) {
-            User.create({
-                name: req.oidc.user.name,
-                email: req.oidc.user.email
-            })
-            const user = User.findAll({
-                where: {
-                    email: req.oidc.user.email
-                }
-            })
+        if (user == null) {
+            user = await User.create({name: req.oidc.user.nickname, email: req.oidc.user.email})
         }
         console.log(req.oidc.user)
         console.log(user)
-        res.redirect("user_page")
-        res.send('You are logged in')
+        res.redirect("user")
     } else {
-        res.send('You are not signed up!')
+        res.send('You are not logged in.')
     }
 })
 
-app.get("/user_page", async (req, res) => {
-  console.log(req.oidc.user)
-  res.render("user_page")
+app.get("/user", async (req, res) => {
+    if (!req.oidc.isAuthenticated()) {
+        res.sendStatus(404)
+    } else {
+        const user = await User.findOne({
+            where: {
+                email: req.oidc.user.email
+            }
+        })
+        res.render("user", {user})
+    }
 })
 
-// Puts the friends into the user page
-app.get('/user/:id', async (req, res) => {
-    const user = await User.findByPk(req.params.id)
-    const friends = await Friend.findAll({
-        include: [
-            {model: Friend, as: 'friends'}
-        ]
-    })
-    res.render('/user', {user, friends})
+// app.get("/user", async (req, res) => {
+//     const user = await User.findByPk(req.params.id)
+//     res.render("user", {user})
+// })
+
+//Sending invitation email to friend
+app.post('/users/:id/invite-friend', async (req,res) => {
+  const user = await User.findByPk(req.params.id)
+  const link = 'http://localhost:3000/' + user.id + '/add-friend'
+  const body = 'Hi! ' + user.name + ' has invited you to be their friend on Cash Flow. Follow this link to accept: ' + link
+  const subject = "Cash Flow Friend Request"
+  const email = new Email("cash.flow.glm@gmail.com", body, subject)
+  res.sendStatus(200)
+})
+
+//Creaating a new friend
+app.post('/users/:id/add-friend', async (req,res) => {
+    const friend = await Friend.create({email: req.body.email, bank: req.body.bank, UserId: req.params.id})
+    res.status(200).send(friend)
 })
 
 app.listen(PORT, async () => {
