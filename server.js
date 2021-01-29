@@ -101,6 +101,8 @@ app.post('/pay', async (req,res) => {
         const balance = user.balance + amount
         console.log(balance)
         user.update({balance: balance })
+        const body = "Hi! you have recieved a payment of: " + amount
+        const email = new Email(user.email, body, "Cash Flow Reciept")
         res.sendStatus(200)
     }   
 }) 
