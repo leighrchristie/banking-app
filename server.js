@@ -54,6 +54,7 @@ app.get('/', async (req, res) => {
     }
 })
 
+//Getting user home page
 app.get("/user", async (req, res) => {
     if (!req.oidc.isAuthenticated()) {
         res.sendStatus(404)
@@ -68,17 +69,22 @@ app.get("/user", async (req, res) => {
 })
 
 //Sending invitation email to friend
-app.post('/users/:id/invite-friend', async (req,res) => {
+app.post('/user/:id/invite-friend', async (req,res) => {
   const user = await User.findByPk(req.params.id)
-  const link = 'http://localhost:3000/' + user.id + '/add-friend'
+  const link = 'http://localhost:3000/user/' + user.id + '/invite-friend'
   const body = 'Hi! ' + user.name + ' has invited you to be their friend on Cash Flow. Follow this link to accept: ' + link
   const subject = "Cash Flow Friend Request"
   const email = new Email("cash.flow.glm@gmail.com", body, subject)
   res.sendStatus(200)
 })
 
-//Creaating a new friend
-app.post('/users/:id/add-friend', async (req,res) => {
+//Getting add friend form
+app.get('/user/:id/invite-friend', async (req,res) => {
+    res.render("invite")
+})
+
+//Creating a new friend
+app.post('/user/:id/add-friend', async (req,res) => {
     const friend = await Friend.create({email: req.body.email, bank: req.body.bank, UserId: req.params.id})
     res.status(200).send(friend)
 })
