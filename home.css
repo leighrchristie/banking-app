@@ -33,19 +33,27 @@
   
   .btn-outline-secondary{
       width: 100%;
-      height: 20%;
+      height: 50px;
       background-color: #f9a010ff;
       color: white;
   }
+ 
+  .form-select{
+      height: 45px;
+  }
+  .input-group{
+      padding-top: 20px;
+      padding-bottom: 20px;
+  }
   .form-control{
-      height: 7vh;
+      height: 50px;
   }
   .float-left {
-      height: 20vh;
     float:left;
     width:300px;
 }
 
 h3{
     font-family: "Neucha", cursive;
+    padding-top: 30px;
 }
