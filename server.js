@@ -17,7 +17,7 @@ const config = {
 // auth router attaches /login, /logout, and /callback routes to the baseURL
 app.use(auth(config))
 
-// req.isAuthenticated is provided from the auth router
+// checks if user exists then req.isAuthenticated is provided from the auth router
 app.get('/', (req, res) => {
     if (req.oidc.isAuthenticated()) {
         const user = User.findAll({
@@ -38,10 +38,27 @@ app.get('/', (req, res) => {
         }
         console.log(req.oidc.user)
         console.log(user)
+        res.redirect("user_page")
         res.send('You are logged in')
     } else {
         res.send('You are not signed up!')
     }
+})
+
+app.get("/user_page", async (req, res) => {
+  console.log(req.oidc.user)
+  res.render("user_page")
+})
+
+// Puts the friends into the user page
+app.get('/user/:id', async (req, res) => {
+    const user = await User.findByPk(req.params.id)
+    const friends = await Friend.findAll({
+        include: [
+            {model: Friend, as: 'friends'}
+        ]
+    })
+    res.render('/user', {user, friends})
 })
 
 app.listen(PORT, async () => {

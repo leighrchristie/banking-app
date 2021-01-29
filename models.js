@@ -8,11 +8,19 @@ const sequelize = process.env.NODE_ENV === 'test'
 class User extends Model {}
 User.init ({
     name: DataTypes.STRING,
-    email: DataTypes.STRING,
-    friends: []
+    email: DataTypes.STRING
 }, {sequelize:  sequelize})
+
+class Friend extends Model {}
+Friend.init({
+    email: DataTypes.STRING,
+    bank: DataTypes.STRING
+}, {sequelize: sequelize})
+
+User.hasMany(Friend, {as: 'friends'})
 
 module.exports = {
     User,
+    Friend,
     sequelize
 }
