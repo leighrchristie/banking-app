@@ -1,7 +1,7 @@
 const { auth } = require('express-openid-connect')
 const express = require('express')
 const app = express()
-const { sequelize, User } = require('./models')
+const { sequelize, User, Friend } = require('./models')
 const Email = require('./email')
 
 var PORT = process.env.PORT || 3000
@@ -17,6 +17,9 @@ const config = {
 
 // auth router attaches /login, /logout, and /callback routes to the baseURL
 app.use(auth(config))
+
+//body of requests should be parsed
+app.use(express.json())
 
 // req.isAuthenticated is provided from the auth router
 app.get('/', async (req, res) => {
@@ -37,6 +40,7 @@ app.get('/', async (req, res) => {
     }
 })
 
+//Sending invitation email to friend
 app.post('/users/:id/invite-friend', async (req,res) => {
   const user = await User.findByPk(req.params.id)
   const link = 'http://localhost:3000/' + user.id + '/add-friend'
@@ -44,6 +48,12 @@ app.post('/users/:id/invite-friend', async (req,res) => {
   const subject = "Cash Flow Friend Request"
   const email = new Email("cash.flow.glm@gmail.com", body, subject)
   res.sendStatus(200)
+})
+
+//Creaating a new friend
+app.post('/users/:id/add-friend', async (req,res) => {
+    const friend = await Friend.create({email: req.body.email, bank: req.body.bank, UserId: req.params.id})
+    res.status(200).send(friend)
 })
 
 app.listen(PORT, async () => {
