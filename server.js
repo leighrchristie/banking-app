@@ -104,7 +104,7 @@ app.post('/pay', async (req,res) => {
         }
     })
     
-    const amount = req.body.amount
+    const amount = parseFloat(req.body.amount)
 
     if (user == []) {
         res.sendStatus(404)

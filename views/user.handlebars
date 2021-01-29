@@ -30,23 +30,25 @@
 
             <div>
                 <h3 align="center">My Friends</h3>
-                <div align="center" class="float-left">
-                    <select class="form-select" aria-label="Default select example" style="margin: 0px 10px;">
-                        {{#each friends}}
-                        <option value="1">{{this.email}}</option>
-                        {{/each}}
-                    </select>
-                </div>
-                <div align="center" class="float-left">
-                    <div class="input-group mb-3" style="margin: 0px 10px;">
-                        <input type="text" class="form-control" placeholder="Amount" aria-label="£" />
+                <form onsubmit="sendMoney(event, this)">
+                    <div align="center" class="float-left">
+                        <select class="form-control" name="friend" aria-label="Default select example" style="margin: 0px 10px;">
+                            {{#each friends}}
+                            <option value="{{this.email}},{{this.bank}}">{{this.email}}</option>
+                            {{/each}}
+                        </select>
                     </div>
-                </div>
-                <div align="center" class="float-left">
-                    <button type="button" class="btn-outline-secondary" style="margin: 0px 10px;">
-                        Send Money
-                    </button>
-                </div>
+                    <div align="center" class="float-left">
+                        <div class="input-group mb-3" style="margin: 0px 10px;">
+                            <input type="number" name="amount" class="form-control" placeholder="Amount" aria-label="£" />
+                        </div>
+                    </div>
+                    <div align="center" class="float-left">
+                        <button type="submit" class="btn-outline-secondary" style="margin: 0px 10px;">
+                            Send Money
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -70,6 +72,42 @@
             }
 
             await fetch("/user/{{user.id}}/invite-friend", request)
+        }
+
+        async function sendMoney(event, form) {
+            event.preventDefault()
+            const data = new FormData(form)
+            const friend = data.get("friend")
+             const [email, bank] = friend.split(',')
+            const body1 = {
+                email: email,
+                amount: data.get("amount")
+            }
+
+            const request1 = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body1)
+            }
+
+            await fetch(bank + "/pay", request1)
+
+            const body2 = {
+                email: "{{user.email}}",
+                amount: "-" + data.get("amount")
+            }
+
+            const request2 = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body2)
+            }
+
+            await fetch("/pay", request2)
         }
     </script>
 </body>
